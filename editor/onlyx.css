@@ -1,0 +1,13 @@
+#editor {
+	cursor: text;
+}
+
+.onlyx-environment-Standard {
+	margin: 1em 0;
+	background: #faa;
+}
+
+.onlyx-environment-Part {
+	margin: 1em 0;
+	background: #aaf;
+}

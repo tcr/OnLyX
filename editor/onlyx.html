@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+ <head>
+  <title>OnLyX</title>
+  <style type="text/css">
+	#editor {
+		padding: 0.25em 0.5em;
+		border: 1px solid black;
+		height: 15em;
+	}
+  </style>
+  <script src="base2.js"></script>
+  <script src="base2-dom.js"></script>
+  <script src="editable.js"></script>
+  <script src="styler-utils.js"></script>
+  <script src="styler.js"></script>
+  <script src="styler-html.js"></script>
+  <script src="onlyx.js"></script>
+ </head>
+ <body>
+  <h1>OnLyX</h1>
+  <iframe src="editor.html" width="100%" height="200" id="editor"></iframe>
+<p><select id="environments">
+  <option>Standard</option>
+  <optgroup label="List">
+    <option>Itemize</option>
+    <option>Enumerate</option>
+  </optgroup>
+  <optgroup label="Section">
+    <option>Part</option>
+    <option>Section</option>
+    <option>Subsection</option>
+    <option>Subsubsection</option>
+    <option>Paragraph</option>
+    <option>Subparagraph</option>
+  </optgroup>
+</select>
+<button id="bold">Bold</button>
+</p>
+<p><button id="output">Output LaTeX</button></p>
+ </body>
+</html>

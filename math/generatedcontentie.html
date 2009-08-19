@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Math test</title>
+
+<style>
+div.figure {
+margin: 1em 0;
+text-align: center;
+font-size: 2.0em;
+font-style: italic;
+}
+
+table {
+display: inline-table;
+display: inline;
+}
+
+.replaced {
+color: #009;
+font-style: normal;
+}
+
+.table-figure { display: inline-table; vertical-align: middle; }
+
+.frac { line-height: 1.0; }
+.frac-top { border-bottom: 0.07em solid black; }
+
+.int { vertical-align: middle; border-collapse: collapse; margin-right: 0.2em; }
+.int td { font-size: 0.6em; vertical-align: top; padding-bottom: 0.3em; }
+
+.delim { letter-spacing: -.05em; font-size: 1.2em; }
+.left { margin: 0 0 0 .1em; }
+.right { margin: 0 .2em 0 0; }
+
+.figure sup {
+font-size: 0.7em;
+vertical-align: baseline;
+position: relative;
+top: -0.5em;
+}
+
+.op { margin: 0 0.3em; }
+
+.parenthetical { bacdkground: #ffc; }
+.parenthetical::before { margin: 0 0 0 .1em; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: '('; }
+.parenthetical::after { margin: 0 .2em 0 0; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: ')'; }
+
+.int::before { font-size: 1.4em; vertical-align: middle; padding-right: 0.05em; color: #009; font-style: normal; content: '\222B'; }
+
+b::before { content: '"'; }
+b::after { content: '"'; }
+
+em::before { content: '('; }
+em::after { content: ')'; }
+
+
+</style>	
+<!--[if lte IE 8]>
+<style>
+.table-figure { display: inline; }
+</style>
+<script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+<![endif]-->
+<script src="base2.js"></script>
+<script src="base2-dom.js"></script>
+<script>
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj && obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return {left: curleft, top: curtop};
+}
+
+
+function test() {
+	alert(findPos(document.getElementById('int')).top);
+	alert(findPos(document.getElementById('int')).left);
+}
+
+base2.DOM.bind(document);
+document.addEventListener('DOMContentLoaded', function () {
+	// disable table resizing in mozilla
+	if (false) {
+		document.execCommand('enableObjectResizing', null, false);
+		document.execCommand('enableInlineTableEditing', null, false);
+	}
+//[TODO], this in ie, safari
+
+try {
+	for (var i = 0, styles = document.querySelectorAll('style'); i < styles.length; i++) {
+		content = styles.item(i).innerHTML;
+		var parser = new base2.RegGrp();
+		parser.add(/(?:^|\})\s*(.+?)::?(before|after)\s*\{(.*)(?=\})/i,
+		    function (text, selector, position, style) {
+console.log(selector, position, style);
+			var parser = new base2.RegGrp(), content;
+			parser.add(/\s*([\w\-_]+):\s*(.*?)\s*;/, function (text, name, value) {
+				if (name.toLowerCase() == 'content')
+					content = value.substr(1, value.length - 2).replace(/\\([a-f0-9]+)/i, function (_, decode) {
+						return String.fromCharCode(parseInt(decode, 16));
+					});
+			});
+			parser.exec(style);
+			for (var j = 0, nodes = document.querySelectorAll(selector); j < nodes.length; j++)
+				addGeneratedContent(nodes.item(j), position.toLowerCase(), content, style);
+		    });
+		parser.exec(content);
+	}
+} catch (e) { console.log(e); }
+}, false);
+
+function addGeneratedContent(node, bStart, content, style) {
+	if (document.expando) {
+		// create style parent
+		var contentParent = document.createElement('generated-content');
+		document.body.appendChild(contentParent);
+		var parentStyle = document.defaultView.getComputedStyle(node, '');
+		for (var prop in node.currentStyle)
+			if (prop.substr(0, 4) == 'font' || prop == 'color')
+				contentParent.runtimeStyle[prop] = node.currentStyle[prop];
+		
+		// generate content
+		var contentNode = document.createElement('generated-content');
+		contentNode.innerHTML = content;
+		contentNode.generatedParent = node;
+		contentParent.appendChild(contentNode);
+		// set node reference
+		node.generatedBefore = contentNode;
+		
+		// check if node can support padding
+		var usingPadding = node.offsetWidth;
+		node.runtimeStyle.paddingLeft = '50px';
+		usingPadding = usingPadding != node.offsetWidth;
+		node.runtimeStyle.paddingLeft = '';
+		
+		// position it
+		contentNode.runtimeStyle.position = 'absolute';
+		contentNode.runtimeStyle.top = contentNode.runtimeStyle.left = '0';
+		contentNode.runtimeStyle.setExpression('top', 'computeGeneratedContentTop(this, this.generatedParent, "' + bStart + '", ' + (usingPadding ? 'true' : 'false') + ')');
+		contentNode.runtimeStyle.setExpression('left', 'computeGeneratedContentLeft(this, this.generatedParent, "' + bStart + '", ' + (usingPadding ? 'true' : 'false') + ')');
+		contentNode.style.cssText += style;
+		node.runtimeStyle[(usingPadding ? 'padding' : 'margin') + (bStart == 'before' ? 'Left' : 'Right')] = 0;
+		node.runtimeStyle.setExpression((usingPadding ? 'padding' : 'margin') + (bStart == 'before' ? 'Left' : 'Right'), 'computeGeneratedContentSpace(this.generatedBefore, this, "' + bStart + '", ' + (usingPadding ? 'true' : 'false') + ')');
+		node.runtimeStyle.position = 'relative';
+	} else {
+		alert('not ie');
+		console.log(document.defaultView.getComputedStyle(node, ''));
+	}
+}
+
+function computeGeneratedContentTop(node, anchor, location, usingPadding) {
+	if (!anchor.parentNode)
+		return '-9999px';
+	return findPos(anchor).top + anchor.offsetHeight - node.offsetHeight + 'px';
+}
+
+function computeGeneratedContentLeft(node, anchor, location, usingPadding) {
+	if (!anchor.parentNode)
+		return '-9999px';
+	return findPos(anchor).left
+	    + ((!usingPadding && location == 'before') || (usingPadding && location == 'after') ? -node.offsetWidth : 0)
+	    + (location == 'after' ? anchor.offsetWidth : 0)
+	    + 'px';
+}
+
+function computeGeneratedContentSpace(node, anchor, location, usingPadding) {
+	return node.offsetWidth + 'px';
+}
+
+</script>
+</head>
+<body>
+<div class="figure" contenteditable="true"><table class="table-figure replaced int">
+<tr><td>a</td></tr>
+<tr><td>0</td></tr>
+</table><span style="font-style: normal">sin</span><span class="parenthetical">5x<sup>3</sup></span>dx<!--
+--><span class="op">+</span><table class="table-figure frac" unselectable="on" hidefocus="on">
+<tr><td class="frac-top">x</td></tr>
+<tr><td class="frac-bottom">a<span class="op">&minus;</span>b</td>
+</table>
+</div>
+
+<hr>
+
+<div class="figure">
+<input type="button" value="Test" onclick="test()"><br>
+<a href="http://www.cs.tut.fi/~jkorpela/math/">http://www.cs.tut.fi/~jkorpela/math/</a>
+</div>
+
+<hr>
+
+<p>Here is a <b>paragraph</b> of text with some <em>embedded</em> elements.</p>
+
+</body>
+</html>

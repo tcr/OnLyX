@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Math test</title>
+
+<style>
+div.figure {
+margin: 1em 0;
+text-align: center;
+font-size: 2.0em;
+font-style: italic;
+}
+
+table {
+display: inline-table;
+display: inline;
+}
+
+.replaced {
+color: #009;
+font-style: normal;
+}
+
+.table-figure { display: inline-table; vertical-align: middle; }
+
+.frac { line-height: 1.0; }
+.frac-top { border-bottom: 0.07em solid black; }
+
+.int-span { font-size: 1.3em; vertical-align: middle; padding-right: 0.05em; color: #009; font-style: normal; }
+.int { vertical-align: middle; border-collapse: collapse; margin-right: 0.2em; }
+.int-symbol { font-size: 1.3em; vertical-align: middle; padding-right: 0.05em; -moz-user-select: none; }
+.int-term { font-size: 0.6em; vertical-align: top; padding-bottom: 0.3em; }
+
+.delim { letter-spacing: -.05em; font-size: 1.2em; }
+.left { margin: 0 0 0 .1em; }
+.right { margin: 0 .2em 0 0; }
+
+.figure sup {
+font-size: 0.7em;
+vertical-align: baseline;
+position: relative;
+top: -0.5em;
+}
+
+.op { margin: 0 0.3em; }
+
+.parenthetical { bacdkground: #ffc; }
+.parenthetical::before { margin: 0 0 0 .1em; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: '('; }
+.parenthetical::after { margin: 0 .2em 0 0; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: ')'; }
+
+.int-wrap::before { font-size: 1.4em; vertical-align: middle; padding-right: 0.05em; color: #009; font-style: normal; content: '\222B'; }
+
+#paren-left {
+	font-size: 2.25em;
+	position: absolute;
+	z-index: 9999;
+	vertical-align: baseline;
+	top: exxpression((findPos(document.getElementById('paren')).top + document.getElementById('paren').offsetHeight) - document.getElementById('paren-left').offsetHeight + 'px');
+	left: exxpression(findPos(document.getElementById('paren')).left + 'px');
+}
+
+#paren-right {
+	font-size: 2.25em;
+	z-index: 9999;
+	position: absolute;
+	top: exxpression((findPos(document.getElementById('paren')).top  + document.getElementById('paren').offsetHeight) - document.getElementById('paren-left').offsetHeight + 'px');
+	left: exxpression(findPos(document.getElementById('paren')).left + document.getElementById('paren').offsetWidth + 'px');
+}
+
+#paren {
+	padding-left: exxpression(document.getElementById('paren-left').offsetWidth + 'px');
+	height: 1%;
+	padding-right: exxpression(document.getElementById('paren-right').offsetWidth + 5 + 'px');
+}
+
+</style>	
+<!--[if lte IE 8]>
+<style>
+.table-figure { display: inline; }
+</style>
+<script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+<![endif]-->
+<script src="base2.js"></script>
+<script src="base2-dom.js"></script>
+<script>
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj && obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return {left: curleft, top: curtop};
+}
+
+
+function test() {
+	alert(findPos(document.getElementById('int')).top);
+	alert(findPos(document.getElementById('int')).left);
+}
+
+base2.DOM.bind(document);
+document.addEventListener('DOMContentLoaded', function () {
+	// disable table resizing in mozilla
+	if (false) {
+		document.execCommand('enableObjectResizing', null, false);
+		document.execCommand('enableInlineTableEditing', null, false);
+	}
+//[TODO], this in ie, safari
+
+	for (var i = 0, styles = document.querySelectorAll('style'); i < styles.length; i++) {
+		content = styles.item(i).innerHTML;
+		var parser = new base2.RegGrp();
+		parser.add(/(?:^|\})\s*(.+)::(before|after)\s*\{(.*)(?=\})/i,
+		    function (text, selector, position, style) {
+		    console.log(selector, position, style);
+			for (var j = 0, nodes = document.querySelectorAll(selector); j < nodes.length; j++)
+				addGeneratedContent(nodes.item(j), position.toLowerCase(), '\u222B', style);
+		    });
+		parser.exec(content);
+	}
+}, false);
+
+function addGeneratedContent(node, bStart, content, style) {
+console.log(arguments);
+	if (document.expando) {
+		// generate content
+		var contentNode = document.createElement('generated-content');
+		contentNode.innerHTML = content;
+		contentNode.generatedParent = node;
+		document.body.appendChild(contentNode);
+		// set node reference
+		node.generatedBefore = contentNode;
+		
+		// check if node can support padding
+		var usingPadding = node.offsetWidth;
+		node.runtimeStyle.paddingLeft = '50px';
+		contentNode.usingPadding = usingPadding = usingPadding != node.offsetWidth;
+		node.runtimeStyle.paddingLeft = '';
+		
+		// position it
+		contentNode.runtimeStyle.position = 'absolute';
+		contentNode.runtimeStyle.top = contentNode.runtimeStyle.left = '0';
+		contentNode.runtimeStyle.setExpression('top', 'computeGeneratedContentTop(this, this.generatedParent)');
+		contentNode.runtimeStyle.setExpression('left', "computeGeneratedContentLeft(this, this.generatedParent)");
+		contentNode.style.cssText += style + 'font-size: 3em;';
+		node.runtimeStyle.setExpression(usingPadding ? 'paddingLeft' : 'marginLeft', 'computeGeneratedContentSpace(this.generatedBefore, this)');
+	} else {
+		alert('not ie');
+	}
+}
+
+function computeGeneratedContentTop(node, anchor) {
+	if (!anchor.parentNode)
+		return '-9999px';
+	return findPos(anchor).top + anchor.offsetHeight - node.offsetHeight + 'px';
+}
+
+function computeGeneratedContentLeft(node, anchor) {
+	if (!anchor.parentNode)
+		return '-9999px';
+	return findPos(anchor).left - (node.usingPadding ? 0 : node.offsetWidth) + 'px';
+}
+
+function computeGeneratedContentSpace(node, anchor) {
+	return node.offsetWidth + 'px';
+}
+
+</script>
+</head>
+<body>
+<div class="figure" contenteditable="true">
+<span class="int-wrap"><table class="table-figure replaced int" id="int">
+<tr><td class="int-term">a</td></tr>
+<tr><td class="int-term">0</td></tr>
+</table></span><span style="font-style: normal">sin</span><span class="parenthetical" style="position: relative;">5x<sup>3</sup></span>dx<!--
+--><span class="op">+</span><table class="table-figure frac" unselectable="on" hidefocus="on">
+<tr><td class="frac-top">x</td></tr>
+<tr><td class="frac-bottom">a<span class="op">&minus;</span>b</td>
+</table>
+</div>
+
+<hr>
+
+<div class="figure">
+<input type="button" value="Test" onclick="test()"><br>
+<a href="http://www.cs.tut.fi/~jkorpela/math/">http://www.cs.tut.fi/~jkorpela/math/</a>
+</div>
+
+<hr></hr>
+
+<span id="paren-left" class="replaced delim left">(</span>
+<span id="paren-right" class="replaced delim right">)</span>s
+
+</body>
+</html>

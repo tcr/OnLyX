@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Math test</title>
+
+<style>
+div.figure {
+margin: 1em 0;
+text-align: center;
+font-size: 2.0em;
+font-style: italic;
+}
+
+table {
+display: inline-table;
+display: inline;
+}
+
+.replaced {
+color: #009;
+font-style: normal;
+}
+
+.table-figure { display: inline-table; vertical-align: middle; }
+
+.frac { }
+.frac-top { border-bottom: 0.07em solid black; }
+.frac-bottom { line-height: 1.0; }
+
+.int-span { font-size: 1.3em; vertical-align: middle; padding-right: 0.05em; color: #009; font-style: normal; }
+.int { vertical-align: middle; border-collapse: collapse; margin-right: 0.2em; }
+.int-symbol { font-size: 1.3em; vertical-align: middle; padding-right: 0.05em; -moz-user-select: none; }
+.int-term { font-size: 0.6em; vertical-align: top; padding-bottom: 0.3em; }
+
+.delim { letter-spacing: -.05em; font-size: 1.2em; display: none; }
+.left { margin: 0 0 0 .1em; }
+.right { margin: 0 .2em 0 0; }
+
+.figure sup {
+font-size: 0.7em;
+vertical-align: baseline;
+position: relative;
+top: -0.5em;
+}
+
+.op { margin: 0 0.3em; }
+
+.parenthetical { background: #ffc; }
+.parenthetical::before { margin: 0 0 0 .1em; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: '('; }
+.parenthetical::after { margin: 0 .2em 0 0; color: #009; font-style: normal; letter-spacing: -.05em; font-size: 1.2em; content: ')'; }
+
+.int::before { font-size: 1.2em; vertical-align: middle; padding-right: 0.05em; color: #009; font-style: normal; content: '\222B'; }
+</style>
+<!--[if lte IE 8]>
+<style>
+.table-figure { display: inline; }
+</style>
+<![endif]-->
+<script>
+window.onload = function () {
+	document.execCommand('enableObjectResizing', null, false);
+	document.execCommand('enableInlineTableEditing', null, false);
+
+	var abba = document.getElementById('a');
+	abba.ongclick = function () { alert('hi'); }
+}
+</script>
+</head>
+<body>
+<div class="figure" contenteditable="true">
+<!--<span class="int-span replaced" contenteditable="false" unselectable="on">&int;</span>--><span class="int"><table class="table-figure replaced int">
+<tr><td rowspan="2" class="int-symbol" id="a">&int;</td><td class="int-term">a</td></tr>
+<tr><td class="int-term">0</td></tr>
+</table></span><span style="font-style: normal">sin</span><span class="parenthetical"><span class="replaced delim left">(</span>5x<sup>3</sup><span class="replaced delim right">)</span></span>dx<!--
+--><span class="op">+</span><table class="table-figure frac" unselectable="on" hidefocus="on">
+<tr><td class="frac-top">x</td></tr>
+<tr><td class="frac-bottom">a<span class="op">&minus;</span>b</td>
+</table>
+</div>
+
+<hr>
+
+<div class="figure" contenteditable="true">
+<table class="table-figure frac">
+<tr><td class="frac-top">x</td></tr>
+<tr><td>a &minus; b</td>
+</table>
+</div>
+
+<hr>
+
+<div class="figure"><a href="http://www.cs.tut.fi/~jkorpela/math/">http://www.cs.tut.fi/~jkorpela/math/</a></div>
+
+<hr>
+
+<div class="figure">
+<table style="display: inline; display: inline-table; vertical-align: middle; border-collapse: collapse; margin-right: 0.2em;">
+<tr><td rowspan="3"><object data="int.svg" style="width: 1em;"></object></td></td>
+<td style="font-size: 0.6em; padding-bottom: 0.5em">a</td></tr>
+<tr><td style="font-size: 0.3em; "></td></tr>
+<tr><td style="font-size: 0.6em; vertical-align: top; padding-bottom: 0.3em">0</td></tr>
+</table>sin(5x)dx
+</div>
+</body>
+</html>
