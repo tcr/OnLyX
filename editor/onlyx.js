@@ -234,7 +234,10 @@ window.onload = function () {
 	}, false);
 	
 	document.querySelector('#output').addEventListener('click', function () {
-		console.log((new Serializer()).serializeChildren(editor.getNode()));
+		var h = '\\documentclass[a4paper,12pt]{article}\\begin{document}', f = '\\end{document}';
+		var content = (new Serializer()).serializeChildren(editor.getNode());
+		document.getElementById('input').value = h + content + f;
+		document.getElementById('apple').submit();
 	}, false);
 	
 	// bold button
